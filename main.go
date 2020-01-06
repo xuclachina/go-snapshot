@@ -55,19 +55,21 @@ func main() {
 
 	db, err := common.NewMySQLConnection(conf)
 	if err != nil {
-		fmt.Printf("NewMySQLConnection Error: %s\n", err.Error())
+		Log.Error("无法建立数据库连接，错误信息：%s", err)
 		return
 	}
 	defer func() { _ = db.Close() }()
-
+	defer Log.Close()
 	// start...
 	Log.Info("start snapshot...")
-	go timeout()
+	// go timeout()
 	for {
+		Log.Warning("开始状态检查")
 		isnapshot = checkCondition(conf, db)
-		now := time.Now()
+		now := time.Now().Format("2006-01-02-15-04-05")
 		childDir := fmt.Sprintf("%s/%s", conf.Base.SnapshotDir, now)
 		if isnapshot {
+			Log.Warning("达到触发条件，开始数据库快照信息收集!")
 			makeSnapshot(childDir)
 		}
 		time.Sleep(time.Second * Interval)
@@ -75,29 +77,25 @@ func main() {
 
 }
 
+/*
 func timeout() {
 	time.AfterFunc(TimeOut*time.Second, func() {
 		Log.Error("Execute timeout")
 		os.Exit(1)
 	})
-}
+}*/
 
 func checkCondition(conf *common.Config, db mysql.Conn) (result bool) {
 	metrics := make(map[string]int)
-	c1, _ := cpu.Times(false)
-	time.Sleep(time.Second * 1)
-	c2, _ := cpu.Times(false)
+	_cpu, _ := cpu.Percent(time.Second, false)
 	info, _ := disk.IOCounters()
-	metrics["cpUser"] = int(c2[0].User - c1[0].User)
-	metrics["cpuSys"] = int(c2[0].System - c1[0].System)
-	metrics["cpuIowait"] = int(c2[0].Iowait - c1[0].Iowait)
+	metrics["cpu"] = int(_cpu[0])
 	metrics["iops"] = int(info["disk0"].IopsInProgress)
 
 	NewMysqlMetric := GetMySQLStatus(db)
 	for k, v := range NewMysqlMetric {
 		metrics[k] = v
 	}
-
 	ConditionMap := makeConditionMap(conf)
 	result = judge(ConditionMap, metrics)
 	return
@@ -114,24 +112,31 @@ func judge(ConditionMap map[string]int, metrics map[string]int) bool {
 
 func makeConditionMap(conf *common.Config) (ConditionMap map[string]int) {
 	ConditionMap = make(map[string]int)
-	ConditionMap["Cpuser"] = conf.Condition.Cpuser
-	ConditionMap["Cpusys"] = conf.Condition.Cpusys
-	ConditionMap["Iowait"] = conf.Condition.Iowait
-	ConditionMap["Iops"] = conf.Condition.Iops
-	ConditionMap["ThreadsRunning"] = conf.Condition.ThreadsRunning
-	ConditionMap["ThreadsConnected"] = conf.Condition.ThreadsConnected
-	ConditionMap["RowLockWaits"] = conf.Condition.RowLockWaits
-	ConditionMap["SlowQuries"] = conf.Condition.SlowQuries
+	ConditionMap["cpu"] = conf.Condition.Cpu
+	ConditionMap["Threads_running"] = conf.Condition.ThreadsRunning
+	ConditionMap["Threads_connected"] = conf.Condition.ThreadsConnected
+	ConditionMap["Innodb_row_lock_current_waits"] = conf.Condition.RowLockWaits
+	ConditionMap["Slow_queries"] = conf.Condition.SlowQuries
 	return
 }
 
 func makeSnapshot(childDir string) {
+	err := os.MkdirAll(childDir, 0755)
+	if err != nil {
+		Log.Alert("创建文件夹失败!")
+	}
 	var lock sync.Mutex
+
+	//退出释放锁
 	defer lock.Unlock()
+
 	var wg sync.WaitGroup
-	wg.Add(1)
+	wg.Add(2)
 	lock.Lock()
+
+	//开始记录状态信息
 	go Logio(childDir, &wg)
 	go Logmpstat(childDir, &wg)
+
 	wg.Wait()
 }

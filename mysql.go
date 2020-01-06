@@ -32,7 +32,7 @@ func GetMySQLStatus(db mysql.Conn) map[string]int {
 	if err != nil{
 		Log.Alert("get slow queries status failed")
 	}
-	slowQueries,_ := row.Int64Err(0)
+	slowQueries, _ := row.Int64Err(0)
 	metrics["Slow_queries"] = int(slowQueries) - metrics["Slow_queries"]
 
 	return metrics

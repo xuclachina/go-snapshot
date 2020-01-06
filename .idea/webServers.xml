@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="caa73834-fc7f-4193-bb8d-13bbfc46acb1" name="zdb" url="http://10.101.90.104">
+        <fileTransfer host="10.101.90.104" port="52000" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="52000" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

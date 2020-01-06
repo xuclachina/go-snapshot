@@ -18,11 +18,7 @@ func loggerInit(conf *Config, logFile string) (log *logs.BeeLogger) {
 	if conf.Base.LogDir == "console" {
 		_ = log.SetLogger("console")
 	} else {
-		_ = log.SetLogger(
-			"file", fmt.Sprintf(
-				`{"filename":"%s", "level":%d, "maxlines":0,
-					"maxsize":0, "daily":false, "maxdays":0}`,
-				logFile, conf.Base.LogLevel))
+		_ = log.SetLogger("file", fmt.Sprintf(`{"filename":"%s", "level":%d, "maxlines":0,"maxsize":0, "daily":false, "maxdays":0}`, logFile, conf.Base.LogLevel))
 	}
 	return
 }

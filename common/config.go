@@ -27,9 +27,7 @@ type DatabaseConf struct {
 
 // ConditionConf config about conditions
 type ConditionConf struct {
-	Cpuser           int
-	Cpusys           int
-	Iowait           int
+	Cpu		         int
 	Iops             int
 	ThreadsRunning   int
 	ThreadsConnected int
@@ -89,51 +87,34 @@ func readConf(file string) (conf Config, err error) {
 		port = 3306
 		err = nil
 	}
-	cpuser, err := cfg.Section("condtion").Key("cpuser").Int()
+	cpu, err := cfg.Section("condition").Key("cpu").Int()
+	iops, err := cfg.Section("condition").Key("iops").Int()
 	if err != nil {
-		fmt.Println("cpuser: default 100!")
-		cpuser = 100
-		err = nil
-	}
-	cpusys, err := cfg.Section("condtion").Key("cpusys").Int()
-	if err != nil {
-		fmt.Println("cpusys: default 100!")
-		cpusys = 100
-		err = nil
-	}
-	iowait, err := cfg.Section("condtion").Key("iowait").Int()
-	if err != nil {
-		fmt.Println("cpuser: default 100!")
-		iowait = 100
-		err = nil
-	}
-	iops, err := cfg.Section("condtion").Key("iops").Int()
-	if err != nil {
-		fmt.Println("cpuser: default 100!")
+		fmt.Println("iops: default 100000!")
 		iops = 100000
 		err = nil
 	}
-	threadsrunning, err := cfg.Section("condtion").Key("threads_running").Int()
+	threadsrunning, err := cfg.Section("condition").Key("Threads_running").Int()
 	if err != nil {
-		fmt.Println("cpuser: default 100!")
+		fmt.Println("threadsrunning: default 100!")
 		threadsrunning = 100
 		err = nil
 	}
-	threadsconnected, err := cfg.Section("condtion").Key("threads_running").Int()
+	threadsconnected, err := cfg.Section("condition").Key("Threads_connected").Int()
 	if err != nil {
-		fmt.Println("cpuser: default 100!")
+		fmt.Println("threadsconnected: default 10000!")
 		threadsconnected = 10000
 		err = nil
 	}
-	rowlockwaits, err := cfg.Section("condtion").Key("row_lock_waits").Int()
+	rowlockwaits, err := cfg.Section("condition").Key("Innodb_row_lock_current_waits").Int()
 	if err != nil {
-		fmt.Println("cpuser: default 100!")
+		fmt.Println("rowlockwaits: default 10000!")
 		rowlockwaits = 10000
 		err = nil
 	}
-	slowquries, err := cfg.Section("condtion").Key("slow_quries").Int()
+	slowquries, err := cfg.Section("condition").Key("Slow_queries").Int()
 	if err != nil {
-		fmt.Println("cpuser: default 100!")
+		fmt.Println("slowquries: default 10000!")
 		slowquries = 10000
 		err = nil
 	}
@@ -153,9 +134,7 @@ func readConf(file string) (conf Config, err error) {
 			Port:     port,
 		},
 		ConditionConf{
-			Cpuser:           cpuser,
-			Cpusys:           cpusys,
-			Iowait:           iowait,
+			Cpu:           cpu,
 			Iops:             iops,
 			ThreadsRunning:   threadsrunning,
 			ThreadsConnected: threadsconnected,

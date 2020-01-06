@@ -11,7 +11,7 @@ import (
 func Logio(childDir string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fileName := fmt.Sprintf("%s/%s", childDir, "iostat")
-	cmd := exec.Command("bash", "-c", "iostat 1 5")
+	cmd := exec.Command("bash", "-c", "iostat -m -x 1 5")
 	out, _ := cmd.CombinedOutput()
 	_ = common.CreateFileWriteNote(fileName, string(out))
 }
@@ -20,7 +20,7 @@ func Logio(childDir string, wg *sync.WaitGroup) {
 func Logmpstat(childDir string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fileName := fmt.Sprintf("%s/%s", childDir, "mpstat")
-	cmd := exec.Command("bash", "-c", "iostat 1 5")
+	cmd := exec.Command("bash", "-c", "mpstat 1 5")
 	out, _ := cmd.CombinedOutput()
 	_ = common.CreateFileWriteNote(fileName, string(out))
 }

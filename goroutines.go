@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/ziutek/mymysql/mysql"
 	"go-snapshot/common"
 	"os/exec"
 	"sync"
 )
 
-//Logio info
-func Logio(childDir string, wg *sync.WaitGroup) {
+//LogIo info
+func LogIo(childDir string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fileName := fmt.Sprintf("%s/%s", childDir, "iostat")
 	cmd := exec.Command("bash", "-c", "iostat -m -x 1 5")
@@ -16,8 +17,8 @@ func Logio(childDir string, wg *sync.WaitGroup) {
 	_ = common.CreateFileWriteNote(fileName, string(out))
 }
 
-//Logmpstat info
-func Logmpstat(childDir string, wg *sync.WaitGroup) {
+//LogMpstat info
+func LogMpstat(childDir string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fileName := fmt.Sprintf("%s/%s", childDir, "mpstat")
 	cmd := exec.Command("bash", "-c", "mpstat 1 5")
@@ -25,3 +26,14 @@ func Logmpstat(childDir string, wg *sync.WaitGroup) {
 	_ = common.CreateFileWriteNote(fileName, string(out))
 }
 
+//LogInnodbStatus info
+func LogInnodbStatus(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName := fmt.Sprintf("%s/%s", childDir, "innodb_status")
+	innodbStaus, err := GetInnodbStaus(db)
+	if err != nil {
+		Log.Error("get innodb status failed")
+	}
+	_ = common.CreateFileWriteNote(fileName, innodbStaus)
+
+}

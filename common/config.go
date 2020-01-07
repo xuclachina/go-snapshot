@@ -29,6 +29,7 @@ type DatabaseConf struct {
 type ConditionConf struct {
 	Cpu		         int
 	Iops             int
+	Device			 string
 	ThreadsRunning   int
 	ThreadsConnected int
 	RowLockWaits     int
@@ -134,8 +135,9 @@ func readConf(file string) (conf Config, err error) {
 			Port:     port,
 		},
 		ConditionConf{
-			Cpu:           cpu,
+			Cpu:           	  cpu,
 			Iops:             iops,
+			Device:           cfg.Section("condition").Key("device").String(),
 			ThreadsRunning:   threadsrunning,
 			ThreadsConnected: threadsconnected,
 			RowLockWaits:     rowlockwaits,

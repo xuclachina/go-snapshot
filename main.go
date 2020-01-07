@@ -64,7 +64,7 @@ func main() {
 	Log.Info("start snapshot...")
 	// go timeout()
 	for {
-		Log.Warning("开始状态检查")
+		Log.Info("开始状态检查")
 		isnapshot = checkCondition(conf, db)
 		now := time.Now().Format("2006-01-02-15-04-05")
 		childDir := fmt.Sprintf("%s/%s", conf.Base.SnapshotDir, now)
@@ -88,15 +88,20 @@ func timeout() {
 func checkCondition(conf *common.Config, db mysql.Conn) (result bool) {
 	metrics := make(map[string]int)
 	_cpu, _ := cpu.Percent(time.Second, false)
-	info, _ := disk.IOCounters()
+	_info1, _ := disk.IOCounters()
+
+	time.Sleep(time.Second)
+
+	_info2, _ := disk.IOCounters()
+
 	metrics["cpu"] = int(_cpu[0])
-	metrics["iops"] = int(info["disk0"].IopsInProgress)
+	metrics["iops"] = int(_info2[conf.Condition.Device].ReadCount) + int(_info2[conf.Condition.Device].WriteCount) - int(_info1[conf.Condition.Device].ReadCount) - int(_info1[conf.Condition.Device].WriteCount)
 
 	NewMysqlMetric := GetMySQLStatus(db)
 	for k, v := range NewMysqlMetric {
 		metrics[k] = v
 	}
-	ConditionMap := makeConditionMap(conf)
+	ConditionMap := makeConditionMap(db, conf)
 	result = judge(ConditionMap, metrics)
 	return
 }
@@ -120,7 +125,7 @@ func makeConditionMap(conf *common.Config) (ConditionMap map[string]int) {
 	return
 }
 
-func makeSnapshot(childDir string) {
+func makeSnapshot(db mysql.Conn, childDir string) {
 	err := os.MkdirAll(childDir, 0755)
 	if err != nil {
 		Log.Alert("创建文件夹失败!")
@@ -135,8 +140,9 @@ func makeSnapshot(childDir string) {
 	lock.Lock()
 
 	//开始记录状态信息
-	go Logio(childDir, &wg)
-	go Logmpstat(childDir, &wg)
+	go LogIo(childDir, &wg)
+	go LogMpstat(childDir, &wg)
+	go LogInnodbStatus(db, childDir, &wg)
 
 	wg.Wait()
 }

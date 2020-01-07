@@ -70,7 +70,7 @@ func main() {
 		childDir := fmt.Sprintf("%s/%s", conf.Base.SnapshotDir, now)
 		if isnapshot {
 			Log.Warning("达到触发条件，开始数据库快照信息收集!")
-			makeSnapshot(childDir)
+			makeSnapshot(db, childDir)
 		}
 		time.Sleep(time.Second * Interval)
 	}
@@ -101,7 +101,7 @@ func checkCondition(conf *common.Config, db mysql.Conn) (result bool) {
 	for k, v := range NewMysqlMetric {
 		metrics[k] = v
 	}
-	ConditionMap := makeConditionMap(db, conf)
+	ConditionMap := makeConditionMap(conf)
 	result = judge(ConditionMap, metrics)
 	return
 }
@@ -136,13 +136,27 @@ func makeSnapshot(db mysql.Conn, childDir string) {
 	defer lock.Unlock()
 
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(4)
 	lock.Lock()
 
 	//开始记录状态信息
 	go LogIo(childDir, &wg)
 	go LogMpstat(childDir, &wg)
+	go LogDiskSpace(childDir, &wg)
+	//TODO:LogMessageInfo
+	//TODO:LogTop
+	//TODO:LogTcpDump
+	//TODO:LogMemoInfo
+	//TODO:LogInterrupts
+	//TODO:LogPs
+	//TODO:LogNetStat
 	go LogInnodbStatus(db, childDir, &wg)
+	//TODO:LogProcesslist
+	//TODO:LogTransactions
+	//TODO:LogLockInfo
+	//TODO:LogSlaveInfo
+	//TODO:LogMySQLStatus
+	//TODO:LogMySQLVariables
 
 	wg.Wait()
 }

@@ -26,6 +26,15 @@ func LogMpstat(childDir string, wg *sync.WaitGroup) {
 	_ = common.CreateFileWriteNote(fileName, string(out))
 }
 
+//LogDiskSpace info
+func LogDiskSpace(childDir string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName := fmt.Sprintf("%s/%s", childDir, "disk_space")
+	cmd := exec.Command("bash", "-c", "df -h")
+	out, _ := cmd.CombinedOutput()
+	_ = common.CreateFileWriteNote(fileName, string(out))
+}
+
 //LogInnodbStatus info
 func LogInnodbStatus(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -35,5 +44,4 @@ func LogInnodbStatus(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
 		Log.Error("get innodb status failed")
 	}
 	_ = common.CreateFileWriteNote(fileName, innodbStaus)
-
 }

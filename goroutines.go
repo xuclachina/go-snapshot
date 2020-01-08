@@ -35,6 +35,15 @@ func LogDiskSpace(childDir string, wg *sync.WaitGroup) {
 	_ = common.CreateFileWriteNote(fileName, string(out))
 }
 
+//LogTop info
+func LogTop(childDir string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName := fmt.Sprintf("%s/%s", childDir, "top")
+	cmd := exec.Command("bash", "-c", "top -bn5")
+	out, _ := cmd.CombinedOutput()
+	_ = common.CreateFileWriteNote(fileName, string(out))
+}
+
 //LogInnodbStatus info
 func LogInnodbStatus(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
 	defer wg.Done()

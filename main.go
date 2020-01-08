@@ -136,7 +136,7 @@ func makeSnapshot(db mysql.Conn, childDir string) {
 	defer lock.Unlock()
 
 	var wg sync.WaitGroup
-	wg.Add(4)
+	wg.Add(5)
 	lock.Lock()
 
 	//开始记录状态信息
@@ -144,7 +144,7 @@ func makeSnapshot(db mysql.Conn, childDir string) {
 	go LogMpstat(childDir, &wg)
 	go LogDiskSpace(childDir, &wg)
 	//TODO:LogMessageInfo
-	//TODO:LogTop
+	go LogTop(childDir, &wg)
 	//TODO:LogTcpDump
 	//TODO:LogMemoInfo
 	//TODO:LogInterrupts

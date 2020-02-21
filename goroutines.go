@@ -5,8 +5,6 @@ import (
 	"go-snapshot/common"
 	"os/exec"
 	"sync"
-
-	"github.com/ziutek/mymysql/mysql"
 )
 
 //LogIo info
@@ -82,7 +80,13 @@ func LogNetStat(childDir string, wg *sync.WaitGroup) {
 }
 
 //LogInnodbStatus info
-func LogInnodbStatus(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
+func LogInnodbStatus(conf *common.Config, childDir string, wg *sync.WaitGroup) {
+	db, err := common.NewMySQLConnection(conf)
+	if err != nil {
+		Log.Error("无法建立数据库连接，错误信息：%s", err)
+		return
+	}
+	defer func() { _ = db.Close() }()
 	defer wg.Done()
 	fileName := fmt.Sprintf("%s/%s", childDir, "innodb_status")
 	innodbStaus, err := GetInnodbStaus(db)
@@ -93,7 +97,13 @@ func LogInnodbStatus(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
 }
 
 //LogProcesslist info
-func LogProcesslist(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
+func LogProcesslist(conf *common.Config, childDir string, wg *sync.WaitGroup) {
+	db, err := common.NewMySQLConnection(conf)
+	if err != nil {
+		Log.Error("无法建立数据库连接，错误信息：%s", err)
+		return
+	}
+	defer func() { _ = db.Close() }()
 	defer wg.Done()
 	fileName := fmt.Sprintf("%s/%s", childDir, "processlist")
 	processList, err := GetProcesslist(db)

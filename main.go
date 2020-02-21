@@ -9,7 +9,7 @@ import (
 
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
-	"github.com/ziutek/mymysql/mysql"
+	_ "github.com/ziutek/mymysql/native" //with mysql
 
 	"go-snapshot/common"
 
@@ -59,20 +59,14 @@ func main() {
 	Log.Info("start snapshot...")
 	// go timeout()
 	for {
-		db, err := common.NewMySQLConnection(conf)
-		if err != nil {
-			Log.Error("无法建立数据库连接，错误信息：%s", err)
-			return
-		}
 		Log.Info("开始状态检查")
-		isnapshot = checkCondition(conf, db)
+		isnapshot = checkCondition(conf)
 		now := time.Now().Format("2006-01-02-15-04-05")
 		childDir := fmt.Sprintf("%s/%s", conf.Base.SnapshotDir, now)
 		if isnapshot {
 			Log.Warning("达到触发条件，开始数据库快照信息收集!")
-			makeSnapshot(db, childDir)
+			makeSnapshot(conf, childDir)
 		}
-		db.Close()
 		time.Sleep(time.Second * Interval)
 	}
 
@@ -86,7 +80,13 @@ func timeout() {
 	})
 }*/
 
-func checkCondition(conf *common.Config, db mysql.Conn) (result bool) {
+func checkCondition(conf *common.Config) (result bool) {
+	db, err := common.NewMySQLConnection(conf)
+	if err != nil {
+		Log.Error("无法建立数据库连接，错误信息：%s", err)
+		return
+	}
+	defer func() { _ = db.Close() }()
 	metrics := make(map[string]int)
 	_cpu, _ := cpu.Percent(time.Second, false)
 	_info1, _ := disk.IOCounters()
@@ -126,7 +126,7 @@ func makeConditionMap(conf *common.Config) (ConditionMap map[string]int) {
 	return
 }
 
-func makeSnapshot(db mysql.Conn, childDir string) {
+func makeSnapshot(conf *common.Config, childDir string) {
 	err := os.MkdirAll(childDir, 0755)
 	if err != nil {
 		Log.Alert("创建文件夹失败!")
@@ -151,8 +151,8 @@ func makeSnapshot(db mysql.Conn, childDir string) {
 	go LogInterrupts(childDir, &wg)
 	go LogPs(childDir, &wg)
 	go LogNetStat(childDir, &wg)
-	go LogInnodbStatus(db, childDir, &wg)
-	go LogProcesslist(db, childDir, &wg)
+	go LogInnodbStatus(conf, childDir, &wg)
+	go LogProcesslist(conf, childDir, &wg)
 	//TODO:LogTransactions
 	//TODO:LogLockInfo
 	//TODO:LogSlaveInfo

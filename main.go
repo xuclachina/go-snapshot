@@ -84,12 +84,14 @@ func timeout() {
 }*/
 
 func checkCondition(conf *common.Config) (result bool) {
+	fmt.Println("t1:%s", time.Now().Format("2006-01-02-15-04-05"))
 	db, err := common.NewMySQLConnection(conf)
 	if err != nil {
 		Log.Error("无法建立数据库连接，错误信息：%s", err)
 		return
 	}
 	defer func() { _ = db.Close() }()
+	fmt.Println("t2:%s", time.Now().Format("2006-01-02-15-04-05"))
 	metrics := make(map[string]int)
 	_cpu, _ := cpu.Percent(time.Second, false)
 	_info1, _ := disk.IOCounters()

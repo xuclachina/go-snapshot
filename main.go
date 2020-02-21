@@ -64,7 +64,6 @@ func main() {
 			Log.Error("无法建立数据库连接，错误信息：%s", err)
 			return
 		}
-		defer func() { _ = db.Close() }()
 		Log.Info("开始状态检查")
 		isnapshot = checkCondition(conf, db)
 		now := time.Now().Format("2006-01-02-15-04-05")
@@ -73,6 +72,7 @@ func main() {
 			Log.Warning("达到触发条件，开始数据库快照信息收集!")
 			makeSnapshot(db, childDir)
 		}
+		db.Close()
 		time.Sleep(time.Second * Interval)
 	}
 

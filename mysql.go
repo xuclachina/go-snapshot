@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/ziutek/mymysql/mysql"
 )
 
@@ -52,11 +55,16 @@ func GetInnodbStaus(db mysql.Conn) (string, error) {
 
 // GetProcesslist for get mysql processlist
 func GetProcesslist(db mysql.Conn) (string, error) {
-	processlist, _, err := db.QueryFirst("SHOW /*!50000 ENGINE*/ FULLL PROCESSLIST")
+	var note string
+	rows, _, err := db.Query("SHOW FULL PROCESSLIST")
 	if err != nil {
-		Log.Debug("show processlist error: %+v", err)
+		Log.Debug("get processlist error: %+v", err)
 		return "", err
 	}
-	allProcesslist := processlist.Str(2)
-	return allProcesslist, nil
+	for _, row := range rows {
+		note += fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%d\t%s\t%s\n",
+			time.Now().Format("2006-01-02 15:04:05"), row.Int(0), row.Str(1), row.Str(2),
+			row.Str(3), row.Str(4), row.Int(5), row.Str(6), row.Str(7))
+	}
+	return note, nil
 }

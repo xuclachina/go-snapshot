@@ -69,6 +69,7 @@ func main() {
 			fmt.Println(time.Now().Format("2006-01-02-15-04-05"))
 			Log.Warning("达到触发条件，开始数据库快照信息收集!")
 			makeSnapshot(conf, childDir)
+			fmt.Println("t3:%s", time.Now().Format("2006-01-02-15-04-05"))
 		}
 		time.Sleep(time.Second * Interval)
 	}

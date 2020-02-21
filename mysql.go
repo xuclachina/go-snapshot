@@ -4,6 +4,7 @@ import (
 	"github.com/ziutek/mymysql/mysql"
 )
 
+// GetMySQLStatus for check
 func GetMySQLStatus(db mysql.Conn) map[string]int {
 	metrics := make(map[string]int)
 	rows, _, err := db.Query("SHOW GLOBAL STATUS;")
@@ -38,6 +39,7 @@ func GetMySQLStatus(db mysql.Conn) map[string]int {
 	return metrics
 }
 
+// GetInnodbStaus for check
 func GetInnodbStaus(db mysql.Conn) (string, error) {
 	status, _, err := db.QueryFirst("SHOW /*!50000 ENGINE*/ INNODB STATUS")
 	if err != nil {
@@ -46,4 +48,15 @@ func GetInnodbStaus(db mysql.Conn) (string, error) {
 	}
 	allStatus := status.Str(2)
 	return allStatus, nil
+}
+
+// GetProcesslist for get mysql processlist
+func GetProcesslist(db mysql.Conn) (string, error) {
+	processlist, _, err := db.QueryFirst("SHOW /*!50000 ENGINE*/ FULLL PROCESSLIST")
+	if err != nil {
+		Log.Debug("show processlist error: %+v", err)
+		return "", err
+	}
+	allProcesslist := processlist.Str(2)
+	return allProcesslist, nil
 }

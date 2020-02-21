@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/ziutek/mymysql/mysql"
 	"go-snapshot/common"
 	"os/exec"
 	"sync"
+
+	"github.com/ziutek/mymysql/mysql"
 )
 
 //LogIo info
@@ -44,6 +45,42 @@ func LogTop(childDir string, wg *sync.WaitGroup) {
 	_ = common.CreateFileWriteNote(fileName, string(out))
 }
 
+//LogMemoInfo info
+func LogMemoInfo(childDir string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName := fmt.Sprintf("%s/%s", childDir, "meminfo")
+	cmd := exec.Command("bash", "-c", "cat /proc/meminfo")
+	out, _ := cmd.CombinedOutput()
+	_ = common.CreateFileWriteNote(fileName, string(out))
+}
+
+//LogInterrupts info
+func LogInterrupts(childDir string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName := fmt.Sprintf("%s/%s", childDir, "interrupts")
+	cmd := exec.Command("bash", "-c", "cat /proc/interrupts")
+	out, _ := cmd.CombinedOutput()
+	_ = common.CreateFileWriteNote(fileName, string(out))
+}
+
+//LogPs info
+func LogPs(childDir string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName := fmt.Sprintf("%s/%s", childDir, "ps")
+	cmd := exec.Command("bash", "-c", "ps -eaF")
+	out, _ := cmd.CombinedOutput()
+	_ = common.CreateFileWriteNote(fileName, string(out))
+}
+
+//LogNetStat info
+func LogNetStat(childDir string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName := fmt.Sprintf("%s/%s", childDir, "netstat")
+	cmd := exec.Command("bash", "-c", "netstat -antp")
+	out, _ := cmd.CombinedOutput()
+	_ = common.CreateFileWriteNote(fileName, string(out))
+}
+
 //LogInnodbStatus info
 func LogInnodbStatus(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -53,4 +90,15 @@ func LogInnodbStatus(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
 		Log.Error("get innodb status failed")
 	}
 	_ = common.CreateFileWriteNote(fileName, innodbStaus)
+}
+
+//LogProcesslist info
+func LogProcesslist(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName := fmt.Sprintf("%s/%s", childDir, "processlist")
+	processList, err := GetProcesslist(db)
+	if err != nil {
+		Log.Error("get processlist failed")
+	}
+	_ = common.CreateFileWriteNote(fileName, processList)
 }

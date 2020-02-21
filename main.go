@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/disk"
-	"github.com/ziutek/mymysql/mysql"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
+	"github.com/ziutek/mymysql/mysql"
 
 	"go-snapshot/common"
 
@@ -136,7 +137,7 @@ func makeSnapshot(db mysql.Conn, childDir string) {
 	defer lock.Unlock()
 
 	var wg sync.WaitGroup
-	wg.Add(5)
+	wg.Add(10)
 	lock.Lock()
 
 	//开始记录状态信息
@@ -146,12 +147,12 @@ func makeSnapshot(db mysql.Conn, childDir string) {
 	//TODO:LogMessageInfo
 	go LogTop(childDir, &wg)
 	//TODO:LogTcpDump
-	//TODO:LogMemoInfo
-	//TODO:LogInterrupts
-	//TODO:LogPs
-	//TODO:LogNetStat
+	go LogMemoInfo(childDir, &wg)
+	go LogInterrupts(childDir, &wg)
+	go LogPs(childDir, &wg)
+	go LogNetStat(childDir, &wg)
 	go LogInnodbStatus(db, childDir, &wg)
-	//TODO:LogProcesslist
+	go LogProcesslist(db, childDir, &wg)
 	//TODO:LogTransactions
 	//TODO:LogLockInfo
 	//TODO:LogSlaveInfo

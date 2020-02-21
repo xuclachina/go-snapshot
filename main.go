@@ -152,7 +152,7 @@ func makeSnapshot(db mysql.Conn, childDir string) {
 	go LogPs(childDir, &wg)
 	go LogNetStat(childDir, &wg)
 	go LogInnodbStatus(db, childDir, &wg)
-	// go LogProcesslist(db, childDir, &wg)
+	go LogProcesslist(db, childDir, &wg)
 	//TODO:LogTransactions
 	//TODO:LogLockInfo
 	//TODO:LogSlaveInfo

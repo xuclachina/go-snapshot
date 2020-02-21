@@ -19,7 +19,7 @@ func initMySQLConnection(conf *Config) (db mysql.Conn, err error) {
 	db = mysql.New("tcp", "", fmt.Sprintf(
 		"%s:%d", conf.DataBase.Host, conf.DataBase.Port),
 		conf.DataBase.User, conf.DataBase.Password)
-	db.SetTimeout(500 * time.Millisecond)
+	db.SetTimeout(1000 * time.Millisecond)
 	if err = db.Connect(); err != nil {
 		err = errors.Wrap(err, "Building mysql connection failed!")
 	}

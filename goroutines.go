@@ -93,12 +93,12 @@ func LogInnodbStatus(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
 }
 
 //LogProcesslist info
-// func LogProcesslist(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
-// 	defer wg.Done()
-// 	fileName := fmt.Sprintf("%s/%s", childDir, "processlist")
-// 	processList, err := GetProcesslist(db)
-// 	if err != nil {
-// 		Log.Error("get processlist failed")
-// 	}
-// 	_ = common.CreateFileWriteNote(fileName, processList)
-// }
+func LogProcesslist(db mysql.Conn, childDir string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fileName := fmt.Sprintf("%s/%s", childDir, "processlist")
+	processList, err := GetProcesslist(db)
+	if err != nil {
+		Log.Error("get processlist failed")
+	}
+	_ = common.CreateFileWriteNote(fileName, processList)
+}

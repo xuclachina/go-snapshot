@@ -59,11 +59,14 @@ func main() {
 	Log.Info("start snapshot...")
 	// go timeout()
 	for {
+		fmt.Println(time.Now().Format("2006-01-02-15-04-05"))
 		Log.Info("开始状态检查")
 		isnapshot = checkCondition(conf)
+		fmt.Println(time.Now().Format("2006-01-02-15-04-05"))
 		now := time.Now().Format("2006-01-02-15-04-05")
 		childDir := fmt.Sprintf("%s/%s", conf.Base.SnapshotDir, now)
 		if isnapshot {
+			fmt.Println(time.Now().Format("2006-01-02-15-04-05"))
 			Log.Warning("达到触发条件，开始数据库快照信息收集!")
 			makeSnapshot(conf, childDir)
 		}

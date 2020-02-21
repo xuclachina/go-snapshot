@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/ziutek/mymysql/mysql"
 )
 
@@ -44,7 +41,7 @@ func GetMySQLStatus(db mysql.Conn) map[string]int {
 
 // GetInnodbStaus for check
 func GetInnodbStaus(db mysql.Conn) (string, error) {
-	status, _, err := db.QueryFirst("SHOW /*!50000 ENGINE*/ INNODB STATUS")
+	status, _, err := db.QueryFirst("SHOW /*!50000 ENGINE*/ INNODB STATUS;")
 	if err != nil {
 		Log.Debug("show innodb status error: %+v", err)
 		return "", err
@@ -54,17 +51,17 @@ func GetInnodbStaus(db mysql.Conn) (string, error) {
 }
 
 // GetProcesslist for get mysql processlist
-func GetProcesslist(db mysql.Conn) (string, error) {
-	var note string
-	rows, _, err := db.Query("SHOW FULL PROCESSLIST")
-	if err != nil {
-		Log.Debug("get processlist error: %+v", err)
-		return "", err
-	}
-	for _, row := range rows {
-		note += fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%d\t%s\t%s\n",
-			time.Now().Format("2006-01-02 15:04:05"), row.Int(0), row.Str(1), row.Str(2),
-			row.Str(3), row.Str(4), row.Int(5), row.Str(6), row.Str(7))
-	}
-	return note, nil
-}
+// func GetProcesslist(db mysql.Conn) (string, error) {
+// 	var note string
+// 	rows, _, err := db.Query("SHOW FULL PROCESSLIST;")
+// 	if err != nil {
+// 		Log.Debug("get processlist error: %+v", err)
+// 		return "", err
+// 	}
+// 	for _, row := range rows {
+// 		note += fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%d\t%s\t%s\n",
+// 			time.Now().Format("2006-01-02 15:04:05"), row.Int(0), row.Str(1), row.Str(2),
+// 			row.Str(3), row.Str(4), row.Int(5), row.Str(6), row.Str(7))
+// 	}
+// 	return note, nil
+// }

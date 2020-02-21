@@ -44,7 +44,7 @@ func GetMySQLStatus(db mysql.Conn) map[string]int {
 
 // GetInnodbStaus for check
 func GetInnodbStaus(db mysql.Conn) (string, error) {
-	status, _, err := db.QueryFirst("SHOW INNODB STATUS;")
+	status, _, err := db.QueryFirst("SHOW ENGINE INNODB STATUS;")
 	if err != nil {
 		Log.Debug("show innodb status error: %+v", err)
 		return "", err

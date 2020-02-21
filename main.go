@@ -59,17 +59,13 @@ func main() {
 	Log.Info("start snapshot...")
 	// go timeout()
 	for {
-		fmt.Println(time.Now().Format("2006-01-02-15-04-05"))
 		Log.Info("开始状态检查")
 		isnapshot = checkCondition(conf)
-		fmt.Println(time.Now().Format("2006-01-02-15-04-05"))
 		now := time.Now().Format("2006-01-02-15-04-05")
 		childDir := fmt.Sprintf("%s/%s", conf.Base.SnapshotDir, now)
 		if isnapshot {
-			fmt.Println(time.Now().Format("2006-01-02-15-04-05"))
 			Log.Warning("达到触发条件，开始数据库快照信息收集!")
 			makeSnapshot(conf, childDir)
-			fmt.Println("t3:%s", time.Now().Format("2006-01-02-15-04-05"))
 		}
 		time.Sleep(time.Second * Interval)
 	}
@@ -85,14 +81,12 @@ func timeout() {
 }*/
 
 func checkCondition(conf *common.Config) (result bool) {
-	fmt.Println("t1:%s", time.Now().Format("2006-01-02-15-04-05"))
 	db, err := common.NewMySQLConnection(conf)
 	if err != nil {
 		Log.Error("无法建立数据库连接，错误信息：%s", err)
 		return
 	}
 	defer func() { _ = db.Close() }()
-	fmt.Println("t2:%s", time.Now().Format("2006-01-02-15-04-05"))
 	metrics := make(map[string]int)
 	_cpu, _ := cpu.Percent(time.Second, false)
 	_info1, _ := disk.IOCounters()
@@ -142,7 +136,7 @@ func makeSnapshot(conf *common.Config, childDir string) {
 	//退出释放锁
 	defer lock.Unlock()
 
-	var wg sync.WaitGroup
+	wg := sync.WaitGroup{}
 	wg.Add(10)
 	lock.Lock()
 

@@ -4,5 +4,5 @@ const (
 	//TimeOut for exec
 	TimeOut = 30
 	//Interval for check
-	Interval = 10
+	Interval = 3
 )

@@ -38,7 +38,7 @@ func LogDiskSpace(childDir string, wg *sync.WaitGroup) {
 func LogTop(childDir string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fileName := fmt.Sprintf("%s/%s", childDir, "top")
-	cmd := exec.Command("bash", "-c", "top -bn5")
+	cmd := exec.Command("bash", "-c", "top -d 1 -bn3")
 	out, _ := cmd.CombinedOutput()
 	_ = common.CreateFileWriteNote(fileName, string(out))
 }

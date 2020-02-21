@@ -54,17 +54,17 @@ func main() {
 	// init log and other necessary
 	Log = common.MyNewLogger(conf, common.CompatibleLog(conf))
 
-	db, err := common.NewMySQLConnection(conf)
-	if err != nil {
-		Log.Error("无法建立数据库连接，错误信息：%s", err)
-		return
-	}
-	defer func() { _ = db.Close() }()
 	defer Log.Close()
 	// start...
 	Log.Info("start snapshot...")
 	// go timeout()
 	for {
+		db, err := common.NewMySQLConnection(conf)
+		if err != nil {
+			Log.Error("无法建立数据库连接，错误信息：%s", err)
+			return
+		}
+		defer func() { _ = db.Close() }()
 		Log.Info("开始状态检查")
 		isnapshot = checkCondition(conf, db)
 		now := time.Now().Format("2006-01-02-15-04-05")
